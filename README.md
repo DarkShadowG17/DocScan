@@ -1,0 +1,2 @@
+# DocScan
+Document scanner API
