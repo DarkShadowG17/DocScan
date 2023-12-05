@@ -1,0 +1,18 @@
+DEFAULT_QUERY_TIMEOUT = 180
+MAX_PAGE_SIZE = 1000  # arbitrary large number to return all results
+MAX_TIME_BEFORE_UPDATE = 1000 * 60 * 60 * 24
+
+API_KEY_CONFIG_KEY = "api_key"
+BEARER_TOKEN_CONFIG_KEY = "bearer_token"
+BEARER_TOKEN_EXPIRES_AT_CONFIG_KEY = "bearer_token_expires_at"
+MQL_OVERRIDE_CONFIG_KEY = "mql_server_url_override"
+PINNED_MODEL_ID_CONFIG_KEY = "pinned_model_id"
+BACKEND_OVERRIDE_CONFIG_KEY = "backend_url_override"
+
+CLI_UPDATE_LAST_CHECKED = "CLI_UPDATE_LAST_CHECKED"
+PREV_CONFIG_DIR_MODIFIED = "PREV_CONFIG_DIR_MODIFIED"
+PREV_CONFIG_DIR_PATH = "PREV_CONFIG_DIR_PATH"
+PREV_MODEL_ID = "PREV_MODEL_ID"
+
+TRANSFORM_PROD_API = "https://api.transformdata.io"
+TRANSFORM_PROD_APP = "https://app.transformdata.io"
