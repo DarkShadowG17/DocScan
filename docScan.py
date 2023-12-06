@@ -12,11 +12,22 @@ import os
 print(os.getcwd())
 pytesseract.pytesseract.tesseract_cmd = '.\\Scripts\\Tesseract-OCR\\tesseract.exe'
 class DocScanner():
+    
 
     def __init__(self, MIN_QUAD_AREA_RATIO=0.25, MAX_QUAD_ANGLE_RANGE=40):
      
         self.MIN_QUAD_AREA_RATIO = MIN_QUAD_AREA_RATIO
         self.MAX_QUAD_ANGLE_RANGE = MAX_QUAD_ANGLE_RANGE        
+    def cin_anc(img):
+        img = cv2.imread(img)
+        crp= img[0:600,400:800]
+
+        gray = cv2.cvtColor(crp, cv2.COLOR_BGR2GRAY )
+
+        haar_cascade = cv2.CascadeClassifier('haar_face.xml')
+
+        faces_rect = haar_cascade.detectMultiScale(gray,scaleFactor=1.1, minNeighbors=4)
+        return len(faces_rect)
 
     def filter_corners(self, corners, min_dist=20):
         def predicate(representatives, corner):
