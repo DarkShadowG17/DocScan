@@ -9,6 +9,8 @@ import cv2
 import pytesseract
 from pylsd.lsd import lsd
 import os
+import re
+from datetime import datetime
 print(os.getcwd())
 pytesseract.pytesseract.tesseract_cmd = '.\\Scripts\\Tesseract-OCR\\tesseract.exe'
 class DocScanner():
@@ -17,10 +19,11 @@ class DocScanner():
     def __init__(self, MIN_QUAD_AREA_RATIO=0.25, MAX_QUAD_ANGLE_RANGE=40):
      
         self.MIN_QUAD_AREA_RATIO = MIN_QUAD_AREA_RATIO
-        self.MAX_QUAD_ANGLE_RANGE = MAX_QUAD_ANGLE_RANGE        
-    def cin_anc(img):
+        self.MAX_QUAD_ANGLE_RANGE = MAX_QUAD_ANGLE_RANGE  
+          
+    def face_detect(img):
         img = cv2.imread(img)
-        crp= img[0:600,400:800]
+        crp= img[0:600,0:400]
 
         gray = cv2.cvtColor(crp, cv2.COLOR_BGR2GRAY )
 
@@ -28,6 +31,8 @@ class DocScanner():
 
         faces_rect = haar_cascade.detectMultiScale(gray,scaleFactor=1.1, minNeighbors=4)
         return len(faces_rect)
+    #def cin_anc(img):
+        
 
     def filter_corners(self, corners, min_dist=20):
         def predicate(representatives, corner):
@@ -206,22 +211,38 @@ class DocScanner():
             sharpen = cv2.GaussianBlur(img, (0,0), 3)
             sharpen = cv2.addWeighted(img, 1.5, sharpen, -0.5, 0)
 
-
+            # #Prenom
+            # cv2.rectangle(warped,(0,150),(200,230),(0,255,0),thickness=2)
+            # prenom_crp= img[150:230,0:200]
+            # #nom    
+            # cv2.rectangle(warped,(0,200),(250,280),(0,255,0),thickness=2)
+            # nom_crp= img[200:280,0:250]
+            # #cin    
+            # cv2.rectangle(warped,(520,440),(690,520),(0,255,0),thickness=2)
+            # cin_crp= img[440:520,520:690]
+            # #Date de naissance    
+            # cv2.rectangle(warped,(120,270),(370,320),(0,255,0),thickness=2)
+            # ddn_crp= img[270:320,120:370]
+            # #Lieu de naissance   
+            # cv2.rectangle(warped,(160,390),(395,435),(0,255,0),thickness=2)
+            # ldn_crp= img[390:435,160:395]
+            # cv2.imshow('Warped',warped)
+        
             #Prenom
             cv2.rectangle(warped,(278,127),(550,178),(0,255,0),thickness=2)
             prenom_crp= img[127:178,278:550]
             #nom    
             cv2.rectangle(warped,(285,193),(480,250),(0,255,0),thickness=2)
-            nom_crp= img[193:250,285:480]
+            nom_crp= img[193:245,285:480]
             #cin    
             cv2.rectangle(warped,(72,491),(230,580),(0,255,0),thickness=2)
-            cin_crp= img[491:580,72:230]
+            cin_crp= img[500:580,72:230]
             #Date de naissance    
             cv2.rectangle(warped,(456,225),(609,290),(0,255,0),thickness=2)
             ddn_crp= img[225:290,456:609]
-            #Lieu de naissance   
-            cv2.rectangle(warped,(292,283),(570,365),(0,255,0),thickness=2)
-            ldn_crp= img[283:345,292:545]
+            #Date de validite   
+            cv2.rectangle(warped,(540 ,520),(670,570),(0,255,0),thickness=2)
+            ddv_crp= sharpen[520:570,540:670]
             cv2.imshow('Warped',warped)
         
             data={
@@ -229,7 +250,7 @@ class DocScanner():
                 'prenom':prenom_crp,
                 'cin':cin_crp,
                 'ddn':ddn_crp,
-                'ldn':ldn_crp
+                'ddv':ddv_crp
             }
 
         #     # save the transformed image
@@ -239,11 +260,19 @@ class DocScanner():
                 break
 
             elif pressed_key == ord('s'):
-               
+                data_cin={}
                 for key,image in data.items():
                     ocr_text = pytesseract.image_to_string(image)
-                    print(key+":"+ocr_text)
+                    data_cin[key]=remove_non_alphanumeric(ocr_text)
                     cv2.imwrite('output/' + key+".jpg", image)
+                    print(face_detect(image))
+                try:
+                    data_cin['age']=calculate_age(data_cin.get('ddn'))
+                    data_cin['cin']= remove_space(data_cin['cin'])
+                except ValueError:
+                    pass
+                print(data_cin)
+                
 
                 # Save the transformed image
                 print("Processed " + basename)
@@ -256,10 +285,45 @@ class DocScanner():
     
         cv2.destroyAllWindows()
 
+def calculate_age(date_string):
+    try:
+        date_object_dot = datetime.strptime(date_string, '%d.%m.%Y')
 
+        current_date = datetime.now()
 
+        age_dot = current_date.year - date_object_dot.year - ((current_date.month, current_date.day) < (date_object_dot.month, date_object_dot.day))
+
+        return age_dot
+    except ValueError:
+        try:
+            date_object_slash = datetime.strptime(date_string, '%d/%m/%Y')
+            
+            current_date = datetime.now()
+
+            age_slash = current_date.year - date_object_slash.year - ((current_date.month, current_date.day) < (date_object_slash.month, date_object_slash.day))
+
+            return age_slash
+        except ValueError:
+            return None
+def remove_non_alphanumeric(input_string):
+    filtered_string = ''.join(char for char in input_string if char.isupper() or char.isdigit() or char in {' ', '.', '/'})
+    date=extract_date_format(filtered_string)
+    if date:
+        return date
+    return filtered_string
+
+def remove_space(input_string):
+    filtered_string = ''.join(char for char in input_string if char.isupper() or char.isdigit())
+    return filtered_string
+def extract_date_format(input_string):
+    date_match = re.search(r'\b(?:\D*)(\d{2}[./]\d{2}[./]\d{4})\b', input_string)
+    
+    if date_match:
+        return date_match.group(1)
+    else:
+        return None
 if __name__ == "__main__":
-    im_file_path = '.\cin.jpg'
+    im_file_path = 'input\scanned_7.jpg'
 
     scanner = DocScanner()
 
