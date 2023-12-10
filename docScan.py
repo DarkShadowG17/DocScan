@@ -12,8 +12,7 @@ from pylsd.lsd import lsd
 import io
 import re
 from datetime import datetime
-import base64,binascii
-from io import BytesIO
+import base64
 from PIL import Image
 from flask import Flask,request,jsonify,render_template, Request
 from flask.views import MethodView
