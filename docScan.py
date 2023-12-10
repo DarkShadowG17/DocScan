@@ -1,4 +1,5 @@
 
+import typing as t
 from pyimagesearch import transform
 from pyimagesearch import imutils
 from scipy.spatial import distance as dist
@@ -14,12 +15,12 @@ from datetime import datetime
 import base64,binascii
 from io import BytesIO
 from PIL import Image
-from flask import Flask,request,jsonify,render_template
+from flask import Flask,request,jsonify,render_template, Request
 from flask.views import MethodView
 
 pytesseract.pytesseract.tesseract_cmd = '.\\Scripts\\Tesseract-OCR\\tesseract.exe'
 app=Flask(__name__)
-#@app.route('/')
+
 class DocScanner(MethodView):
     
 
@@ -28,9 +29,6 @@ class DocScanner(MethodView):
         self.MIN_QUAD_AREA_RATIO = MIN_QUAD_AREA_RATIO
         self.MAX_QUAD_ANGLE_RANGE = MAX_QUAD_ANGLE_RANGE  
 
-
-
-        
 
     def filter_corners(self, corners, min_dist=20):
         def predicate(representatives, corner):
@@ -352,9 +350,13 @@ class DocScanner(MethodView):
             return date_match.group(1)
         else:
             return None
-    def get(self):
-        image_str=""
-        image = self.base64_to_image(image_str)
+    def post(self):
+        try:
+            input=request.get_json()
+            image_str=input['base64']
+            image = self.base64_to_image(image_str)
+        except:
+            return 'Failed to load image'    
         if image.any():
             return self.pcin_rec(image) ,200
            
