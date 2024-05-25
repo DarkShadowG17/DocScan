@@ -19,7 +19,6 @@ class Permis():
                 orig = image.copy()
                 rescaled_image = imutils.resize(image, height =int(RESCALED_HEIGHT))
 
-                # get the contour of the document
                 screenCnt = cnt.get_contour(rescaled_image)
 
         
@@ -68,7 +67,6 @@ class Permis():
         return filtered_string
     def extract_date_format(self,input_string):
         date_match = re.search(r'\b(?:\D*)(\d{2}[./]\d{2}[./]\d{4})\b', input_string)
-        
         if date_match:
             return date_match.group(1)
         else:

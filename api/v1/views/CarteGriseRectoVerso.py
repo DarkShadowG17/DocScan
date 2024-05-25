@@ -5,7 +5,7 @@ from api.v1.views import app_views
 
 
 
-@app_views.route('/permis-recto-verso',methods=['POST'],strict_slashes=False)
+@app_views.route('/carte-grise-recto-verso',methods=['POST'],strict_slashes=False)
 def check_permis_recto_verso():
     input=request.get_json()
     input_recto=input['recto']
@@ -16,5 +16,5 @@ def check_permis_recto_verso():
     image_verso= cn.base64_to_image(base64_str=input_verso)
     
     if image_recto.any() and image_verso.any():
-        permis=PermisRectoVerso(recto=image_recto,verso=image_verso)
-        return permis.data() ,200
+        carte=PermisRectoVerso(recto=image_recto,verso=image_verso)
+        return carte.data() ,200

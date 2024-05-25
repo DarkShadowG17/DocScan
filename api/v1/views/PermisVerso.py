@@ -1,4 +1,4 @@
-from flask import Flask,request,jsonify,render_template, Request
+from flask import request
 from models.PermisVerso import PermisVerso 
 from models.Contour import Contour
 from api.v1.views import app_views

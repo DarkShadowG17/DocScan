@@ -4,3 +4,6 @@ from api.v1.views.CarteNational import *
 from api.v1.views.PermisRecto import *
 from api.v1.views.PermisVerso import *
 from api.v1.views.PermisRectoVerso import *
+from api.v1.views.CarteGriseRecto import *
+from api.v1.views.CarteGriseVerso import *
+from api.v1.views.CarteGriseRectoVerso import *
