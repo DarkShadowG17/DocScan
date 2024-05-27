@@ -6,7 +6,7 @@ from api.v1.views import app_views
 
 
 @app_views.route('/carte-grise-verso',methods=['POST'],strict_slashes=False)
-def check_permis_verso():
+def check_carte_grise_verso():
 
 
     input=request.get_json()
